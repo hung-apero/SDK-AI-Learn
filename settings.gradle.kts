@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 rootProject.name = "AIP396 AI Learn Language"
 include(":app")
 include(":speech")
-include(":stt")
 include(":charactorspeak")
 include(":sample")
+include(":stt")
+include(":tts")
