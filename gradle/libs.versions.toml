@@ -18,6 +18,8 @@ room = "2.8.4"
 splashscreen = "1.0.1"
 firebaseBom = "33.14.0"
 coroutinesPlayServices = "1.9.0"
+okhttp = "4.12.0"
+azureSpeechSdk = "1.40.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -55,6 +57,9 @@ firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+azure-speech-sdk = { group = "com.microsoft.cognitiveservices.speech", name = "client-sdk", version.ref = "azureSpeechSdk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
