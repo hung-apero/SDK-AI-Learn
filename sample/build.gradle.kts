@@ -80,7 +80,7 @@ android {
 }
 
 dependencies {
-    implementation("apero-inhouse:ai-speech:0.1.0")
+    implementation(project(":ai-speech"))
     // Azure Speech SDK + Spine are compileOnly in :ai-speech — sample brings runtime.
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.44.0")
     implementation("com.esotericsoftware.spine:spine-android:4.2.12")
