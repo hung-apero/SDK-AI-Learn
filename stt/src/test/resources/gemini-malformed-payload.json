@@ -1,0 +1,25 @@
+{
+  "transcript": "test phrase",
+  "detected_language": "en",
+  "overall": {
+    "pronunciation": 50,
+    "fluency": 50,
+    "grammar": 50,
+    "cefr_estimate": "B1"
+  },
+  "words": [
+    { "word": "test",   "score": 80, "level": "weird",  "issue": null },
+    { "word": "phrase", "score": 60, "level": "good",   "issue": null }
+  ],
+  "mistakes": [
+    {
+      "type": "spelling",
+      "original": "phrase",
+      "correction": "phrase",
+      "explain_vi": "minor."
+    }
+  ],
+  "native_rewrites": null,
+  "coach_tip_vi": "tip",
+  "next_drill": "drill"
+}

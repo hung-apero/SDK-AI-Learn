@@ -1,12 +1,17 @@
 package com.baseproject.sample
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.apero.tutor.sdk.TutorCharacter
 import com.apero.tutor.sdk.TutorCharacterConfig
@@ -16,6 +21,14 @@ import com.apero.tutor.sdk.tts.AzureTtsProvider
 import com.apero.tutor.sdk.tts.ElevenLabsTtsProvider
 import com.apero.tutor.sdk.tts.TtsEvent
 import com.apero.tutor.sdk.tts.TtsProvider
+import com.baseproject.sample.stt.SttProviderFactory
+import com.baseproject.sample.stt.SttProviderKind
+import com.baseproject.sample.stt.toDisplayText
+import com.baseproject.stt.SpeechToTextProvider
+import com.baseproject.stt.SttEvent
+import com.baseproject.stt.SttResult
+import com.baseproject.stt.android.AndroidSttResult
+import com.baseproject.stt.gemini.GeminiSttResult
 import com.esotericsoftware.spine.android.SpineView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -48,6 +61,22 @@ class MainActivity : AppCompatActivity() {
     private var currentKind: ProviderKind = ProviderKind.ANDROID
     private var currentRate: Float = 1.0f
     private var eventsSub: Job? = null
+
+    // STT
+    private lateinit var sttOutput: TextView
+    private lateinit var btnSttAndroid: Button
+    private lateinit var btnSttGemini: Button
+    private lateinit var btnSttRecord: Button
+    private var sttProvider: SpeechToTextProvider? = null
+    private var sttKind: SttProviderKind = SttProviderKind.ANDROID
+    private var sttSub: Job? = null
+    private var isRecording: Boolean = false
+
+    private val recordPermLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) startStt() else Toast.makeText(this, "Mic permission required", Toast.LENGTH_SHORT).show()
+    }
 
     enum class ProviderKind { ANDROID, AZURE, ELEVENLABS }
 
@@ -100,6 +129,101 @@ class MainActivity : AppCompatActivity() {
             }
         }
         wireButtons()
+        setupStt()
+    }
+
+    private fun setupStt() {
+        sttOutput     = findViewById(R.id.stt_output)
+        btnSttAndroid = findViewById(R.id.btn_stt_android)
+        btnSttGemini  = findViewById(R.id.btn_stt_gemini)
+        btnSttRecord  = findViewById(R.id.btn_stt_record)
+
+        sttKind = SttProviderFactory.defaultKind()
+        switchSttProvider(sttKind)
+
+        btnSttAndroid.setOnClickListener { switchSttProvider(SttProviderKind.ANDROID) }
+        btnSttGemini.setOnClickListener {
+            if (BuildConfig.GEMINI_API_KEY.isBlank()) {
+                Toast.makeText(this, "GEMINI_API_KEY not set in local.properties", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            switchSttProvider(SttProviderKind.GEMINI)
+        }
+        btnSttRecord.setOnClickListener { toggleRecording() }
+    }
+
+    private fun switchSttProvider(kind: SttProviderKind) {
+        sttSub?.cancel(); sttSub = null
+        sttProvider?.destroy()
+        sttKind = kind
+        val p = SttProviderFactory.create(this, kind)
+        sttProvider = p
+        lifecycleScope.launch {
+            try { p.prepare(this@MainActivity) } catch (t: Throwable) {
+                sttOutput.text = "Prepare failed: ${t.message}"
+            }
+        }
+        sttSub = lifecycleScope.launch {
+            p.events.collect { ev ->
+                when (ev) {
+                    is SttEvent.ReadyForSpeech    -> sttOutput.text = "Listening…"
+                    is SttEvent.BeginningOfSpeech -> Unit
+                    is SttEvent.EndOfSpeech       -> {
+                        isRecording = false
+                        btnSttRecord.text = "Hold to Record"
+                        if (kind == SttProviderKind.GEMINI) sttOutput.text = "Analyzing…"
+                    }
+                    is SttEvent.PartialResult -> sttOutput.text = "… ${ev.result.text}"
+                    is SttEvent.Result        -> sttOutput.text = renderResult(ev.result)
+                    is SttEvent.Error         -> {
+                        isRecording = false
+                        btnSttRecord.text = "Hold to Record"
+                        sttOutput.text = "ERROR ${ev.code}: ${ev.message}"
+                    }
+                }
+            }
+        }
+        updateSttPickerVisuals()
+        sttOutput.text = "Ready · ${kind.name.lowercase()}"
+    }
+
+    private fun renderResult(r: SttResult): String = when (r) {
+        is GeminiSttResult  -> r.toDisplayText()
+        is AndroidSttResult -> r.toDisplayText()
+        else                -> "Transcript: ${r.text}"
+    }
+
+    private fun toggleRecording() {
+        if (isRecording) {
+            sttProvider?.stopListening()
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            == PackageManager.PERMISSION_GRANTED) {
+            startStt()
+        } else {
+            recordPermLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    private fun startStt() {
+        val p = sttProvider ?: return
+        p.startListening()
+        isRecording = true
+        btnSttRecord.text = "Stop"
+    }
+
+    private fun updateSttPickerVisuals() {
+        val onColor  = ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+        val offColor = ColorStateList.valueOf(Color.parseColor("#E0E0E0"))
+        for ((btn, kind) in listOf(
+            btnSttAndroid to SttProviderKind.ANDROID,
+            btnSttGemini  to SttProviderKind.GEMINI,
+        )) {
+            val selected = kind == sttKind
+            btn.backgroundTintList = if (selected) onColor else offColor
+            btn.setTextColor(if (selected) Color.WHITE else Color.parseColor("#333333"))
+        }
     }
 
     private fun wireButtons() {
@@ -257,6 +381,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        sttSub?.cancel(); sttSub = null
+        sttProvider?.destroy(); sttProvider = null
         sdk.release()
         super.onDestroy()
     }

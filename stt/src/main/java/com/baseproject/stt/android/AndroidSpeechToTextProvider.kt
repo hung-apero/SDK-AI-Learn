@@ -7,16 +7,18 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import com.baseproject.stt.SpeechToTextProvider
-import com.baseproject.stt.SttConfig
 import com.baseproject.stt.SttErrorCode
 import com.baseproject.stt.SttEvent
+import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 class AndroidSpeechToTextProvider(
     private val context: Context,
-) : SpeechToTextProvider() {
+    private val locale: Locale = Locale.US,
+    private val partialResults: Boolean = true,
+) : SpeechToTextProvider {
 
     private val _events = MutableSharedFlow<SttEvent>(extraBufferCapacity = 16)
     override val events: Flow<SttEvent> = _events.asSharedFlow()
@@ -25,16 +27,17 @@ class AndroidSpeechToTextProvider(
     override var isListening: Boolean = false
         private set
 
-    override fun startListening(config: SttConfig) {
+    override suspend fun prepare(context: Context) = Unit
+
+    override fun startListening() {
         cancel()
         recognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
             setRecognitionListener(createListener())
         }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, config.locale.toLanguageTag())
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, config.partialResults)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, config.maxResults)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale.toLanguageTag())
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, partialResults)
         }
         recognizer?.startListening(intent)
         isListening = true
@@ -75,27 +78,35 @@ class AndroidSpeechToTextProvider(
 
         override fun onResults(results: Bundle?) {
             isListening = false
-            val matches = results
+            val best = results
                 ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.firstOrNull()
                 .orEmpty()
-            val confidences = results
-                ?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
-            val best = matches.firstOrNull().orEmpty()
             _events.tryEmit(
                 SttEvent.Result(
-                    text = best,
-                    alternatives = matches.drop(1),
-                    confidence = confidences?.firstOrNull() ?: 0f,
-                    isFinal = true,
+                    AndroidSttResult(
+                        text = best,
+                        isFinal = true,
+                        languageCode = locale.toLanguageTag(),
+                    )
                 )
             )
         }
 
         override fun onPartialResults(partialResults: Bundle?) {
-            val matches = partialResults
+            val best = partialResults
                 ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.firstOrNull()
                 .orEmpty()
-            _events.tryEmit(SttEvent.PartialResult(matches.firstOrNull().orEmpty()))
+            _events.tryEmit(
+                SttEvent.PartialResult(
+                    AndroidSttResult(
+                        text = best,
+                        isFinal = false,
+                        languageCode = locale.toLanguageTag(),
+                    )
+                )
+            )
         }
 
         override fun onError(error: Int) {

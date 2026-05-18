@@ -1,20 +1,23 @@
 package com.baseproject.stt
 
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
-abstract class SpeechToTextProvider {
+interface SpeechToTextProvider {
 
-    abstract val events: Flow<SttEvent>
+    val events: Flow<SttEvent>
 
-    abstract val isListening: Boolean
+    val isListening: Boolean
 
-    abstract fun startListening(config: SttConfig = SttConfig())
+    suspend fun prepare(context: Context)
 
-    abstract fun stopListening()
+    fun startListening()
 
-    abstract fun cancel()
+    fun stopListening()
 
-    abstract fun destroy()
+    fun cancel()
 
-    open fun isAvailable(): Boolean = true
+    fun destroy()
+
+    fun isAvailable(): Boolean = true
 }

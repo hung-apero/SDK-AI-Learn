@@ -19,6 +19,11 @@ val azureVoice:   String = localProps.getProperty("AZURE_SPEECH_VOICE",   "en-US
 val elevenKey:    String = localProps.getProperty("ELEVENLABS_API_KEY",   "")
 val elevenVoice:  String = localProps.getProperty("ELEVENLABS_VOICE_ID",  "21m00Tcm4TlvDq8ikWAM")
 val elevenModel:  String = localProps.getProperty("ELEVENLABS_MODEL_ID",  "eleven_monolingual_v1")
+val sttProvider:  String = localProps.getProperty("STT_PROVIDER",         "android")
+val sttLocale:    String = localProps.getProperty("STT_LOCALE",           "en-US")
+val geminiKey:    String = localProps.getProperty("GEMINI_API_KEY",       "")
+val geminiModel:  String = localProps.getProperty("GEMINI_STT_MODEL",     "models/gemini-2.5-flash-lite")
+val geminiNative: String = localProps.getProperty("GEMINI_NATIVE_LOCALE", "vi")
 
 android {
     namespace  = "com.baseproject.sample"
@@ -41,6 +46,11 @@ android {
         buildConfigField("String", "ELEVENLABS_API_KEY",  "\"$elevenKey\"")
         buildConfigField("String", "ELEVENLABS_VOICE_ID", "\"$elevenVoice\"")
         buildConfigField("String", "ELEVENLABS_MODEL_ID", "\"$elevenModel\"")
+        buildConfigField("String", "STT_PROVIDER",         "\"$sttProvider\"")
+        buildConfigField("String", "STT_LOCALE",           "\"$sttLocale\"")
+        buildConfigField("String", "GEMINI_API_KEY",       "\"$geminiKey\"")
+        buildConfigField("String", "GEMINI_STT_MODEL",     "\"$geminiModel\"")
+        buildConfigField("String", "GEMINI_NATIVE_LOCALE", "\"$geminiNative\"")
 
         // Azure Speech SDK ships native .so libs — limit ABI to what the emulator
         // actually uses to keep build time / APK size reasonable while testing.
@@ -71,6 +81,7 @@ android {
 
 dependencies {
     implementation(project(":charactorspeak"))
+    implementation(project(":stt"))
     // Azure Speech SDK (charactorspeak declares this compileOnly — the sample brings the runtime).
     // 1.44.0 matches what :charactorspeak was compiled against.
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.44.0")
