@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    `maven-publish`
 }
 
 android {
@@ -22,6 +23,12 @@ android {
     }
 
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -39,4 +46,28 @@ dependencies {
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = project.property("sdkGroupId").toString()
+                artifactId = "ai-speech"
+                version = project.property("sdkVersion").toString()
+                from(components["release"])
+            }
+        }
+        repositories {
+            maven {
+                url = uri("https://artifactory.apero.vn/artifactory/gradle-release/")
+                credentials {
+                    username = (project.findProperty("artifactoryUser") as String?)
+                        ?: System.getenv("ARTIFACTORY_USER") ?: ""
+                    password = (project.findProperty("artifactoryPassword") as String?)
+                        ?: System.getenv("ARTIFACTORY_PASSWORD") ?: ""
+                }
+            }
+        }
+    }
 }
