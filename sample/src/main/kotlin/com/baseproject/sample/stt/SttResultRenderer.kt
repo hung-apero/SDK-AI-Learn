@@ -1,7 +1,7 @@
 package com.baseproject.sample.stt
 
-import com.baseproject.stt.android.AndroidSttResult
-import com.baseproject.stt.gemini.GeminiSttResult
+import com.baseproject.aispeech.stt.android.AndroidSttResult
+import com.baseproject.aispeech.stt.gemini.GeminiSttResult
 
 fun AndroidSttResult.toDisplayText(): String = buildString {
     appendLine("Transcript: $text")

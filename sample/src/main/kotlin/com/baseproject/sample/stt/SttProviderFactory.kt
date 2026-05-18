@@ -2,9 +2,9 @@ package com.baseproject.sample.stt
 
 import android.content.Context
 import com.baseproject.sample.BuildConfig
-import com.baseproject.stt.SpeechToTextProvider
-import com.baseproject.stt.android.AndroidSpeechToTextProvider
-import com.baseproject.stt.gemini.GeminiSpeechToTextProvider
+import com.baseproject.aispeech.stt.SpeechToTextProvider
+import com.baseproject.aispeech.stt.android.AndroidSpeechToTextProvider
+import com.baseproject.aispeech.stt.gemini.GeminiSpeechToTextProvider
 import java.util.Locale
 
 enum class SttProviderKind { ANDROID, GEMINI }

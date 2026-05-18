@@ -80,11 +80,10 @@ android {
 }
 
 dependencies {
-    implementation(project(":charactorspeak"))
-    implementation(project(":stt"))
-    // Azure Speech SDK (charactorspeak declares this compileOnly — the sample brings the runtime).
-    // 1.44.0 matches what :charactorspeak was compiled against.
+    implementation(project(":ai-speech"))
+    // Azure Speech SDK + Spine are compileOnly in :ai-speech — sample brings runtime.
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.44.0")
+    implementation("com.esotericsoftware.spine:spine-android:4.2.12")
 
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
