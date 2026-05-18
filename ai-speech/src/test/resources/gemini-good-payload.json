@@ -1,0 +1,39 @@
+{
+  "transcript": "that room have a view of ocean",
+  "detected_language": "en",
+  "overall": {
+    "pronunciation": 75,
+    "fluency": 80,
+    "grammar": 60,
+    "cefr_estimate": "A2"
+  },
+  "words": [
+    { "word": "that",  "score": 90, "level": "good", "issue": null },
+    { "word": "room",  "score": 85, "level": "good", "issue": null },
+    { "word": "have",  "score": 40, "level": "bad",  "issue": "Missing 's' for third person singular" },
+    { "word": "a",     "score": 95, "level": "good", "issue": null },
+    { "word": "view",  "score": 90, "level": "good", "issue": null },
+    { "word": "of",    "score": 90, "level": "good", "issue": null },
+    { "word": "ocean", "score": 70, "level": "ok",   "issue": "Missing article 'the' before 'ocean'" }
+  ],
+  "mistakes": [
+    {
+      "type": "grammar",
+      "original": "that room have",
+      "correction": "that room has",
+      "explain_vi": "Khi chủ ngữ là 'that room' (ngôi thứ ba số ít), động từ 'have' cần được chia thành 'has'."
+    },
+    {
+      "type": "grammar",
+      "original": "view of ocean",
+      "correction": "view of the ocean",
+      "explain_vi": "Danh từ 'ocean' ở đây là một danh từ đếm được, số ít và chỉ một đối tượng cụ thể (đại dương), nên cần có mạo từ 'the' đứng trước."
+    }
+  ],
+  "native_rewrites": {
+    "casual": "Does that room have an ocean view?",
+    "formal": "Does that room offer a view of the ocean?"
+  },
+  "coach_tip_vi": "Bạn đã phát âm khá tốt! Hãy chú ý thêm đuôi 's' cho động từ khi chủ ngữ là ngôi thứ ba số ít nhé.",
+  "next_drill": "Does this room have a nice view?"
+}
