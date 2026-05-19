@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Sample" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#4AB8D8</item>
+        <item name="colorPrimaryDark">#1E5070</item>
+        <item name="colorAccent">#FF91A8</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/black</item>
+    </style>
+</resources>
