@@ -106,6 +106,6 @@ tasks.withType<PublishToMavenRepository>().configureEach {
         val repoUrl = repository.url.toString().trimEnd('/')
         logger.lifecycle("")
         logger.lifecycle("==> Published $coords to '${repository.name}'")
-        logger.lifecycle("    $repoUrl/$groupPath/ai-speech/$v/ai-speech-$v.aar")
+        logger.lifecycle("    $repoUrl/$groupPath/ai-speech/$v/")
     }
 }
