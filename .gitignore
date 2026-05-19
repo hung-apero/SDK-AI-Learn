@@ -18,3 +18,7 @@ local.properties
 
 # Kotlin
 *.kotlin_module
+
+# Local-only working dirs (kept on disk, not tracked).
+/docs/
+/plans/
