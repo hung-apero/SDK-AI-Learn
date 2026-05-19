@@ -44,13 +44,10 @@ TASKS=()
 for m in "${MODULES[@]}"; do
   [[ $DO_CLEAN  -eq 1 ]] && TASKS+=("$m:clean")
   [[ $DO_LOCAL  -eq 1 ]] && TASKS+=("$m:publishToMavenLocal")
-  [[ $DO_REMOTE -eq 1 ]] && TASKS+=("$m:publishMavenPublicationToMavenRepository")
+  [[ $DO_REMOTE -eq 1 ]] && TASKS+=("$m:publishMavenPublicationToReleaseRepository")
 done
 
 echo "==> ./gradlew ${TASKS[*]}"
 ./gradlew "${TASKS[@]}"
-
-echo
-echo "Done."
-[[ $DO_LOCAL  -eq 1 ]] && echo "  Local:  ~/.m2/repository/apero-inhouse/ai-speech/"
-[[ $DO_REMOTE -eq 1 ]] && echo "  Remote: https://artifactory.apero.vn/artifactory/gradle-release/apero-inhouse/ai-speech/"
+# Final artifact coordinates + URL are printed by the publish tasks themselves
+# (see ai-speech/build.gradle.kts → tasks.withType<PublishTo*>{ doLast { ... } }).
